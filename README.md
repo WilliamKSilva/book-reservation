@@ -33,4 +33,4 @@ can enter in a queue to get the current reserved book.
 
 # Improvments 
 
-- Posts on books where Users can talk about the book and give ratings.
+- Review on books where Users can talk about the book and give ratings.
