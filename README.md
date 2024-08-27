@@ -7,20 +7,15 @@ The application uses, Hexagonal architecture and DDD (Domain Driven Design)
 # Entities 
 
 
-| User |
-| -----|
-| ID   |
-| Name |
-| Email|
-| CPF  |
-| Birth Date|
+| **Users**       | **Books**     |
+| -------------- | -------------- |
+| ID             | ID             |
+| Name           | Title          |
+| Email          | Author         |
+| CPF            | Published Date |
+| Birth Date     | Genre          |
+|                |                |
 
-| Book |
-| -----|
-| ID   |
-| Name |
-| Description |
-| Age Restriction Date |
 
 # Business Logic
 
