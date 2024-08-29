@@ -1,15 +1,27 @@
 package main
 
 import (
+	"context"
 	"log"
-	"time"
+
+	"github.com/WilliamKSilva/book-reservation/internal/app/user"
+	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
+	"github.com/WilliamKSilva/book-reservation/internal/infra/uuid"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	teste, err := time.Parse("2006-01-02", "2024-08-27")
+	err := godotenv.Load()
 	if err != nil {
-		log.Println(err.Error())
-		return
+		log.Fatalf("Error loading .env")
 	}
-	log.Println(teste)
+
+	conn := db.Connect()
+	defer conn.Close(context.Background())
+
+	userRepository := db.PostgresUserRepository{Conn: conn}
+	uuidGenerator := uuid.GoogleUUIDGenerator{}
+	userService := user.NewUserService(userRepository, uuidGenerator)
+
+	userService.Create("william", "teste", "52293872845", "2023-08-12")
 }

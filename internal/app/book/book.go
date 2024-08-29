@@ -2,7 +2,7 @@ package internal
 
 import "time"
 
-type Post struct {
+type Book struct {
 	ID            string
 	Title         string
 	Author        string
