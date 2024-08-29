@@ -7,15 +7,15 @@ The application uses, Hexagonal architecture and DDD (Domain Driven Design)
 # Entities 
 
 
-| **Users**       | **Books**     |
-| -------------- | -------------- |
-| ID             | ID             |
-| Name           | Title          |
-| Email          | Author         |
-| CPF            | Published Date |
-| Birth Date     | Genre          |
-|                |                |
-
+| **users**  | **books**      | **users_book_reservations** |
+|------------|----------------|-----------------------------|
+| id         | id             | id                          |
+| name       | title          | user_id                     |
+| email      | author         | book_id                     |
+| cpf        | published_date | created_at                  |
+| birth_date | genre          | updated_at                  |
+| created_at | created_at     |                             |
+| crated_at  | updated_at     |                             |
 
 # Business Logic
 
@@ -34,3 +34,10 @@ can enter in a queue to get the current reserved book.
 # Improvments 
 
 - Review on books where Users can talk about the book and give ratings.
+
+teste, err := time.Parse("2006-01-02", "2024-08-27")
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	log.Println(teste)
