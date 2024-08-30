@@ -12,7 +12,7 @@ type PostgresUserRepository struct {
 	Conn *pgx.Conn
 }
 
-func (userRepository PostgresUserRepository) Save(userData user.User) (user.User, error) {
+func (userRepository *PostgresUserRepository) Save(userData user.User) (user.User, error) {
 	var result string
 	err := userRepository.Conn.QueryRow(
 		context.Background(),
@@ -22,6 +22,20 @@ func (userRepository PostgresUserRepository) Save(userData user.User) (user.User
 		userData.Email,
 		userData.CPF,
 		userData.BirthDate,
+	).Scan(&result)
+
+	log.Println(err)
+
+	var user user.User
+	return user, nil
+}
+
+func (userRepository *PostgresUserRepository) FindByEmail(email string) (user.User, error) {
+	var result string
+	err := userRepository.Conn.QueryRow(
+		context.Background(),
+		"SELECT * FROM users WHERE email = $1",
+		email,
 	).Scan(&result)
 
 	log.Println(err)

@@ -11,6 +11,23 @@ type User struct {
 	BirthDate time.Time
 }
 
+type CreateRequestDTO struct {
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	CPF       string `json:"cpf"`
+	BirthDate string `json:"birth_date"`
+}
+
+type CreateResponseDTO struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	CPF       string `json:"cpf"`
+	BirthDate string `json:"birth_date"`
+}
+
 type IUserRepository interface {
 	Save(User) (User, error)
 	FindByEmail(email string) (User, error)

@@ -17,5 +17,5 @@ func main() {
 
 	conn := db.Connect()
 	defer conn.Close(context.Background())
-	web.StartListening(8080)
+	web.StartListening(8080, conn)
 }

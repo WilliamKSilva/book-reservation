@@ -5,33 +5,29 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/WilliamKSilva/book-reservation/internal/infra/web/handlers"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
 )
 
-func httpResponse(w http.ResponseWriter, response string) {
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte(response))
-}
-
-func validMethod(requestMethod string, expectedMethod string) bool {
-	return requestMethod == expectedMethod
-}
-
-func registerRoutes() {
-	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		validMethod := validMethod(r.Method, "POST")
-		if !validMethod {
-			response := fmt.Sprintf("Method %s not allowed for /register", r.Method)
-			httpResponse(w, response)
-			return
-		}
+func registerUserRoutes(r *chi.Mux, userHandler handlers.IUserHandler) {
+	r.Post("/register", func(w http.ResponseWriter, r *http.Request) {
+		userHandler.Create(w, r)
 	})
 }
 
-func StartListening(port int) {
-	registerRoutes()
+func StartListening(port int, dbConn *pgx.Conn) {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+
+	userHandler := handlers.NewUserHandler(dbConn)
+
+	registerUserRoutes(r, userHandler)
 
 	log.Printf("Listening at %d", port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)
 	if err != nil {
 		log.Println("Error trying to initialize web server")
 		os.Exit(1)
