@@ -7,11 +7,13 @@ type User struct {
 	Name      string
 	Email     string
 	CPF       string
+	Password  string
 	BirthDate time.Time
 }
 
 type IUserRepository interface {
 	Save(User) (User, error)
+	FindByEmail(email string) (User, error)
 }
 
 type IUUIDGenerator interface {
