@@ -25,25 +25,25 @@ type AuthService struct {
 	UserRepository user.IUserRepository
 }
 
-type AuthenticateDTO struct {
+type LoginDTO struct {
 	User        user.User
 	AccessToken JwtToken
 }
 
-func (authService *AuthService) Login(email string, password string) (AuthenticateDTO, error) {
+func (authService *AuthService) Login(email string, password string) (LoginDTO, error) {
 	user, err := authService.UserRepository.FindByEmail(email)
 	if err != nil {
-		return AuthenticateDTO{user, JwtToken{}}, err
+		return LoginDTO{user, JwtToken{}}, err
 	}
 
 	if user.Password != password {
-		return AuthenticateDTO{user, JwtToken{}}, errors.New("wrong password")
+		return LoginDTO{user, JwtToken{}}, errors.New("wrong password")
 	}
 
 	accessToken, err := authService.JwtService.New()
 	if err != nil {
-		return AuthenticateDTO{user, JwtToken{}}, err
+		return LoginDTO{user, JwtToken{}}, err
 	}
 
-	return AuthenticateDTO{user, accessToken}, nil
+	return LoginDTO{user, accessToken}, nil
 }
