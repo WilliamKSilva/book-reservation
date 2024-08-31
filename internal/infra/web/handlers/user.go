@@ -9,6 +9,7 @@ import (
 	"github.com/WilliamKSilva/book-reservation/internal/app/user"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/uuid"
+	"github.com/WilliamKSilva/book-reservation/internal/infra/web/utils"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -25,11 +26,6 @@ func NewUserHandler(dbConn *pgx.Conn) *UserHandler {
 	}
 }
 
-func HttpResponse(w http.ResponseWriter, response string) {
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte(response))
-}
-
 type IUserHandler interface {
 	Create(w http.ResponseWriter, r *http.Request)
 }
@@ -38,18 +34,33 @@ type UserHandler struct {
 	UserService user.IUserService
 }
 
+// CreateUser godoc
+// @Summary      Create an User
+// @Description
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param user body user.CreateRequestDTO true "User details"
+// @Success      200  {object}  user.CreateResponseDTO
+// @Failure      500  {object}  utils.HttpError
+// @Router       /users [post]
 func (userHandler *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
+	var httpError utils.HttpError
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		HttpResponse(w, "Error trying to read body")
+		httpError.Code = http.StatusUnprocessableEntity
+		httpError.Message = "Error trying to read body"
+
+		utils.HttpResponse(w, httpError.Message, httpError.Code)
 		return
 	}
 
 	var userRequest user.CreateRequestDTO
 	err = json.Unmarshal(b, &userRequest)
 	if err != nil {
-		log.Printf("ERROR: %s", err)
-		HttpResponse(w, "Error trying to decoded request body")
+		httpError.Code = http.StatusUnprocessableEntity
+		httpError.Message = "Error trying to decode request body"
+		utils.HttpResponse(w, httpError.Message, httpError.Code)
 		return
 	}
 

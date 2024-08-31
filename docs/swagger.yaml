@@ -1,4 +1,79 @@
+basePath: /v2
+definitions:
+  user.CreateRequestDTO:
+    properties:
+      birth_date:
+        type: string
+      cpf:
+        type: string
+      email:
+        type: string
+      name:
+        description: '@example {"name": "John Doe", "email": "john.doe@example.com",
+          "password": "teste1234", "cpf": "23212332112", "birth_date": "2024-08-12"}'
+        type: string
+      password:
+        type: string
+    type: object
+  user.CreateResponseDTO:
+    properties:
+      birth_date:
+        type: string
+      cpf:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  utils.HttpError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+host: book-reservation.swagger.io
 info:
-  contact: {}
-paths: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API for the online Book Reservation service.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Book Reservation API
+  version: "1.0"
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.CreateResponseDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Create an User
+      tags:
+      - users
 swagger: "2.0"
