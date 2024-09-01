@@ -16,17 +16,17 @@ func generateSwaggerDocs() {
 	arg0 := "init"
 	// Defines the directories to search for docs
 	arg1 := "-d"
-	arg2 := "internal/infra/web/,internal/infra/web/handlers/,internal/app/user/"
+	arg2 := "internal/infra/web/,internal/infra/web/handlers/,internal/app/user/,internal/app/auth/"
 	arg3 := "-g"
 	arg4 := "http_server.go"
 	cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4)
-	stdout, err := cmd.Output()
-	if err != nil {
-		log.Println(err.Error())
+	stdout, stderr := cmd.Output()
+	if stderr != nil {
+		log.Printf("Command failed with error: %v\nOutput:\n%s", stderr, stdout)
 		os.Exit(1)
 	}
 
-	log.Println(string(stdout[:]))
+	log.Printf("Command output:\n%s", stdout)
 }
 
 func main() {
