@@ -20,7 +20,7 @@ func generateSwaggerDocs() {
 	arg3 := "-g"
 	arg4 := "http_server.go"
 	cmd := exec.Command(app, arg0, arg1, arg2, arg3, arg4)
-	stdout, stderr := cmd.Output()
+	stdout, stderr := cmd.CombinedOutput()
 	if stderr != nil {
 		log.Printf("Command failed with error: %v\nOutput:\n%s", stderr, stdout)
 		os.Exit(1)
