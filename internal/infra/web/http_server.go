@@ -14,9 +14,25 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func registerUserRoutes(r *chi.Mux, userHandler handlers.IUserHandler) {
-	r.Post("/register", func(w http.ResponseWriter, r *http.Request) {
-		userHandler.Create(w, r)
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func registerUserRoutes(r *chi.Mux, authHandler handlers.IAuthHandler) {
+	r.Post("/auth/register", func(w http.ResponseWriter, r *http.Request) {
+		authHandler.Register(w, r)
 	})
 }
 
@@ -32,18 +48,18 @@ func registerUserRoutes(r *chi.Mux, userHandler handlers.IUserHandler) {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host book-reservation.swagger.io
-// @BasePath /v2
+// @host 127.0.0.1:8080
 func StartListening(port int, dbConn *pgx.Conn) {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Use(corsMiddleware)
 
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
 	))
 
-	userHandler := handlers.NewUserHandler(dbConn)
-	registerUserRoutes(r, userHandler)
+	authHandler := handlers.NewAuthHandler(dbConn)
+	registerUserRoutes(r, authHandler)
 
 	log.Printf("Listening at %d", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)
