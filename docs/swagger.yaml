@@ -1,6 +1,52 @@
-basePath: /v2
 definitions:
-  user.CreateRequestDTO:
+  auth.JwtToken:
+    properties:
+      raw:
+        type: string
+      signed:
+        type: string
+    type: object
+  auth.RegisterRequestDTO:
+    properties:
+      birth_date:
+        example: "2024-08-15"
+        type: string
+      cpf:
+        example: "32212276723"
+        type: string
+      email:
+        example: john.doe@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: password123
+        type: string
+    type: object
+  auth.RegisterResponseDTO:
+    properties:
+      accessToken:
+        $ref: '#/definitions/auth.JwtToken'
+      user:
+        $ref: '#/definitions/auth.RegisterUser'
+    type: object
+  auth.RegisterUser:
+    properties:
+      birth_date:
+        type: string
+      cpf:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  user.CreateUserRequestDTO:
     properties:
       birth_date:
         type: string
@@ -15,7 +61,7 @@ definitions:
       password:
         type: string
     type: object
-  user.CreateResponseDTO:
+  user.CreateUserResponseDTO:
     properties:
       birth_date:
         type: string
@@ -37,7 +83,7 @@ definitions:
       message:
         type: string
     type: object
-host: book-reservation.swagger.io
+host: 127.0.0.1:8080
 info:
   contact:
     email: support@swagger.io
@@ -51,6 +97,31 @@ info:
   title: Book Reservation API
   version: "1.0"
 paths:
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.RegisterResponseDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HttpError'
+      summary: Register a new User
+      tags:
+      - auth
   /users:
     post:
       consumes:
@@ -61,14 +132,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/user.CreateRequestDTO'
+          $ref: '#/definitions/user.CreateUserRequestDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.CreateResponseDTO'
+            $ref: '#/definitions/user.CreateUserResponseDTO'
         "500":
           description: Internal Server Error
           schema:

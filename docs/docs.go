@@ -24,6 +24,45 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register a new User",
+                "parameters": [
+                    {
+                        "description": "User details",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.RegisterRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.RegisterResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HttpError"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "post": {
                 "consumes": [
@@ -43,7 +82,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.CreateRequestDTO"
+                            "$ref": "#/definitions/user.CreateUserRequestDTO"
                         }
                     }
                 ],
@@ -51,7 +90,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.CreateResponseDTO"
+                            "$ref": "#/definitions/user.CreateUserResponseDTO"
                         }
                     },
                     "500": {
@@ -65,7 +104,77 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "user.CreateRequestDTO": {
+        "auth.JwtToken": {
+            "type": "object",
+            "properties": {
+                "raw": {
+                    "type": "string"
+                },
+                "signed": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.RegisterRequestDTO": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string",
+                    "example": "2024-08-15"
+                },
+                "cpf": {
+                    "type": "string",
+                    "example": "32212276723"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                }
+            }
+        },
+        "auth.RegisterResponseDTO": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "$ref": "#/definitions/auth.JwtToken"
+                },
+                "user": {
+                    "$ref": "#/definitions/auth.RegisterUser"
+                }
+            }
+        },
+        "auth.RegisterUser": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.CreateUserRequestDTO": {
             "type": "object",
             "properties": {
                 "birth_date": {
@@ -86,7 +195,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.CreateResponseDTO": {
+        "user.CreateUserResponseDTO": {
             "type": "object",
             "properties": {
                 "birth_date": {
@@ -126,8 +235,8 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "book-reservation.swagger.io",
-	BasePath:         "/v2",
+	Host:             "127.0.0.1:8080",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Book Reservation API",
 	Description:      "This is the API for the online Book Reservation service.",

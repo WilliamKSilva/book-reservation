@@ -15,26 +15,8 @@ type User struct {
 	BirthDate time.Time
 }
 
-type CreateRequestDTO struct {
-	// @example {"name": "John Doe", "email": "john.doe@example.com", "password": "teste1234", "cpf": "23212332112", "birth_date": "2024-08-12"}
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	CPF       string `json:"cpf"`
-	BirthDate string `json:"birth_date"`
-}
-
-type CreateResponseDTO struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	CPF       string `json:"cpf"`
-	BirthDate string `json:"birth_date"`
-}
-
 type IUserRepository interface {
-	Save(User) (User, error)
+	Save(user User) (User, error)
 	FindByEmail(email string) (User, error)
 }
 
@@ -43,7 +25,8 @@ type IUUIDGenerator interface {
 }
 
 type IUserService interface {
-	Create(name string, email string, CPF string, birthDate string) (*User, error)
+	Create(CreateUserRequestDTO) (CreateUserResponseDTO, error)
+	FindByEmail(email string) (FindUserByEmailResponseDTO, error)
 }
 
 func NewUserService(userRepository IUserRepository, uuidGenerator IUUIDGenerator) *UserService {
@@ -58,26 +41,50 @@ type UserService struct {
 	UuidGenerator  IUUIDGenerator
 }
 
-func (userService *UserService) Create(name string, email string, CPF string, birthDate string) (*User, error) {
-	birthDateTime, err := time.Parse("2006-01-02", birthDate)
+func (userService *UserService) Create(createUserRequestDTO CreateUserRequestDTO) (CreateUserResponseDTO, error) {
+	birthDateTime, err := time.Parse("2006-01-02", createUserRequestDTO.BirthDate)
 	if err != nil {
-		return nil, err
+		return CreateUserResponseDTO{}, err
 	}
 
 	uuid := userService.UuidGenerator.Generate()
 
 	user := User{
 		ID:        uuid,
-		Name:      name,
-		Email:     email,
-		CPF:       CPF,
+		Name:      createUserRequestDTO.Name,
+		Email:     createUserRequestDTO.Email,
+		CPF:       createUserRequestDTO.CPF,
+		Password:  createUserRequestDTO.Password,
 		BirthDate: birthDateTime,
 	}
 
 	createdUser, err := userService.UserRepository.Save(user)
 	if err != nil {
-		return nil, err
+		return CreateUserResponseDTO{}, err
 	}
 
-	return &createdUser, nil
+	return CreateUserResponseDTO{
+		ID:        createdUser.ID,
+		Name:      createdUser.Name,
+		Email:     createdUser.Email,
+		Password:  createdUser.Password,
+		CPF:       createdUser.CPF,
+		BirthDate: createdUser.BirthDate.String(),
+	}, nil
+}
+
+func (userService *UserService) FindByEmail(email string) (FindUserByEmailResponseDTO, error) {
+	user, err := userService.UserRepository.FindByEmail(email)
+	if err != nil {
+		return FindUserByEmailResponseDTO{}, err
+	}
+
+	return FindUserByEmailResponseDTO{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Password:  user.Password,
+		CPF:       user.CPF,
+		BirthDate: user.BirthDate.String(),
+	}, nil
 }

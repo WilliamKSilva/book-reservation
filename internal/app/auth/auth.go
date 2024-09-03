@@ -13,37 +13,113 @@ type JwtToken struct {
 
 type IJwtService interface {
 	New() (JwtToken, error)
-	Validate(accessToken string) (bool, error)
 }
 
 type IAuthService interface {
-	Login(accessToken string) (user.User, error)
+	Login(email string, password string) (LoginResponseDTO, error)
+	Register(registerRequestDTO RegisterRequestDTO) (RegisterResponseDTO, error)
 }
 
 type AuthService struct {
-	JwtService     IJwtService
-	UserRepository user.IUserRepository
+	JwtService  IJwtService
+	UserService user.IUserService
 }
 
-type LoginDTO struct {
-	User        user.User
-	AccessToken JwtToken
-}
-
-func (authService *AuthService) Login(email string, password string) (LoginDTO, error) {
-	user, err := authService.UserRepository.FindByEmail(email)
+func (authService *AuthService) Login(email string, password string) (LoginResponseDTO, error) {
+	user, err := authService.UserService.FindByEmail(email)
 	if err != nil {
-		return LoginDTO{user, JwtToken{}}, err
+		loginResponse := LoginResponseDTO{
+			LoginUser{
+				ID:        user.ID,
+				Name:      user.Name,
+				Email:     user.Email,
+				Password:  user.Password,
+				CPF:       user.CPF,
+				BirthDate: user.BirthDate,
+			},
+			JwtToken{},
+		}
+
+		return loginResponse, err
 	}
 
 	if user.Password != password {
-		return LoginDTO{user, JwtToken{}}, errors.New("wrong password")
+		loginResponse := LoginResponseDTO{
+			LoginUser{
+				ID:        user.ID,
+				Name:      user.Name,
+				Email:     user.Email,
+				Password:  user.Password,
+				CPF:       user.CPF,
+				BirthDate: user.BirthDate,
+			},
+			JwtToken{},
+		}
+
+		return loginResponse, errors.New("wrong password")
 	}
 
 	accessToken, err := authService.JwtService.New()
 	if err != nil {
-		return LoginDTO{user, JwtToken{}}, err
+		loginResponse := LoginResponseDTO{
+			LoginUser{
+				ID:        user.ID,
+				Name:      user.Name,
+				Email:     user.Email,
+				Password:  user.Password,
+				CPF:       user.CPF,
+				BirthDate: user.BirthDate,
+			},
+			JwtToken{},
+		}
+
+		return loginResponse, err
 	}
 
-	return LoginDTO{user, accessToken}, nil
+	loginResponse := LoginResponseDTO{
+		LoginUser{
+			ID:        user.ID,
+			Name:      user.Name,
+			Email:     user.Email,
+			Password:  user.Password,
+			CPF:       user.CPF,
+			BirthDate: user.BirthDate,
+		},
+		accessToken,
+	}
+	return loginResponse, nil
+}
+
+func (authService *AuthService) Register(registerRequestDTO RegisterRequestDTO) (RegisterResponseDTO, error) {
+	createUserRequestDTO := user.CreateUserRequestDTO{
+		Name:      registerRequestDTO.Name,
+		Email:     registerRequestDTO.Email,
+		Password:  registerRequestDTO.Password,
+		CPF:       registerRequestDTO.CPF,
+		BirthDate: registerRequestDTO.BirthDate,
+	}
+
+	user, err := authService.UserService.Create(createUserRequestDTO)
+	if err != nil {
+		return RegisterResponseDTO{}, err
+	}
+
+	loginResponse, err := authService.Login(user.Email, user.Password)
+	if err != nil {
+		return RegisterResponseDTO{}, err
+	}
+
+	registerResponse := RegisterResponseDTO{
+		User: RegisterUser{
+			ID:        user.ID,
+			Name:      user.Name,
+			Email:     user.Email,
+			Password:  user.Password,
+			CPF:       user.CPF,
+			BirthDate: user.BirthDate,
+		},
+		AccessToken: loginResponse.AccessToken,
+	}
+
+	return registerResponse, nil
 }

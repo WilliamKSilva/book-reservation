@@ -10,10 +10,10 @@ import (
 	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/uuid"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/web/utils"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewUserHandler(dbConn *pgx.Conn) *UserHandler {
+func NewUserHandler(dbConn *pgxpool.Pool) *UserHandler {
 	userPostgresRepository := db.PostgresUserRepository{Conn: dbConn}
 	googleUuidGenerator := uuid.GoogleUUIDGenerator{}
 	userService := user.UserService{
@@ -40,8 +40,8 @@ type UserHandler struct {
 // @Tags         users
 // @Accept       json
 // @Produce      json
-// @Param user body user.CreateRequestDTO true "User details"
-// @Success      200  {object}  user.CreateResponseDTO
+// @Param user body user.CreateUserRequestDTO true "User details"
+// @Success      200  {object}  user.CreateUserResponseDTO
 // @Failure      500  {object}  utils.HttpError
 // @Router       /users [post]
 func (userHandler *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +55,7 @@ func (userHandler *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userRequest user.CreateRequestDTO
+	var userRequest user.CreateUserRequestDTO
 	err = json.Unmarshal(b, &userRequest)
 	if err != nil {
 		httpError.Code = http.StatusUnprocessableEntity

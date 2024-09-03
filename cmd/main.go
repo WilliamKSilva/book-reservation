@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"os"
 	"os/exec"
@@ -16,6 +15,7 @@ func generateSwaggerDocs() {
 	arg0 := "init"
 	// Defines the directories to search for docs
 	arg1 := "-d"
+	// TODO: traverse all directories inside "internal/"" for go files
 	arg2 := "internal/infra/web/,internal/infra/web/handlers/,internal/app/user/,internal/app/auth/"
 	arg3 := "-g"
 	arg4 := "http_server.go"
@@ -43,7 +43,7 @@ func main() {
 		log.Fatalf("Error loading .env")
 	}
 
-	conn := db.Connect()
-	defer conn.Close(context.Background())
-	web.StartListening(8080, conn)
+	pool := db.Connect()
+	defer pool.Close()
+	web.StartListening(8080, pool)
 }

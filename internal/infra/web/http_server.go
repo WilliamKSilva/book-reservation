@@ -10,7 +10,7 @@ import (
 	"github.com/WilliamKSilva/book-reservation/internal/infra/web/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -49,7 +49,7 @@ func registerUserRoutes(r *chi.Mux, authHandler handlers.IAuthHandler) {
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host 127.0.0.1:8080
-func StartListening(port int, dbConn *pgx.Conn) {
+func StartListening(port int, dbPool *pgxpool.Pool) {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(corsMiddleware)
@@ -58,10 +58,11 @@ func StartListening(port int, dbConn *pgx.Conn) {
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
 	))
 
-	authHandler := handlers.NewAuthHandler(dbConn)
+	authHandler := handlers.NewAuthHandler(dbPool)
 	registerUserRoutes(r, authHandler)
 
 	log.Printf("Listening at %d", port)
+	log.Printf("API documentation at %s", "http://localhost:8080/swagger/")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), r)
 	if err != nil {
 		log.Println("Error trying to initialize web server")
