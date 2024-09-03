@@ -11,8 +11,8 @@ type GolangJwt struct{}
 
 func (golangJwt *GolangJwt) New() (auth.JwtToken, error) {
 	key := os.Getenv("JWT_SECRET")
-	token := jwt.New(jwt.SigningMethodES256)
-	signed, err := token.SignedString(key)
+	token := jwt.New(jwt.SigningMethodHS256)
+	signed, err := token.SignedString([]byte(key))
 	if err != nil {
 		return auth.JwtToken{}, err
 	}
