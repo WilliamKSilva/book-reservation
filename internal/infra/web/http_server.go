@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -49,7 +50,7 @@ func registerUserRoutes(r *chi.Mux, authHandler handlers.IAuthHandler) {
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host 127.0.0.1:8080
-func StartListening(port int, dbPool *pgxpool.Pool) {
+func StartListening(ctx context.Context, port int, dbPool *pgxpool.Pool) {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(corsMiddleware)
@@ -58,7 +59,7 @@ func StartListening(port int, dbPool *pgxpool.Pool) {
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
 	))
 
-	authHandler := handlers.NewAuthHandler(dbPool)
+	authHandler := handlers.NewAuthHandler(ctx, dbPool)
 	registerUserRoutes(r, authHandler)
 
 	log.Printf("Listening at %d", port)

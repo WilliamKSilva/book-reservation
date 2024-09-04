@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log"
@@ -15,8 +16,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewAuthHandler(dbPool *pgxpool.Pool) *AuthHandler {
-	userRepository := db.PostgresUserRepository{Conn: dbPool}
+func NewAuthHandler(ctx context.Context, dbPool *pgxpool.Pool) *AuthHandler {
+	userRepository := db.PostgresUserRepository{Conn: dbPool, Ctx: ctx}
 	uuidGenerator := uuid.GoogleUUIDGenerator{}
 	authService := auth.AuthService{
 		JwtService:  &jwt.GolangJwt{},

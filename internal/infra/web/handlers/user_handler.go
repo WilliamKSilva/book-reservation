@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log"
@@ -13,8 +14,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewUserHandler(dbConn *pgxpool.Pool) *UserHandler {
-	userPostgresRepository := db.PostgresUserRepository{Conn: dbConn}
+func NewUserHandler(ctx context.Context, dbConn *pgxpool.Pool) *UserHandler {
+	userPostgresRepository := db.PostgresUserRepository{Conn: dbConn, Ctx: ctx}
 	googleUuidGenerator := uuid.GoogleUUIDGenerator{}
 	userService := user.UserService{
 		UserRepository: &userPostgresRepository,

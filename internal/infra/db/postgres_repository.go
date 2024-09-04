@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"log"
 
 	"github.com/WilliamKSilva/book-reservation/internal/app/user"
 	"github.com/jackc/pgx/v5"
@@ -11,14 +10,14 @@ import (
 
 type PostgresUserRepository struct {
 	Conn *pgxpool.Pool
+	Ctx  context.Context
 }
 
 const QUERY_ALL_USER_FIELDS = "SELECT id, name, email, cpf, password, birth_date FROM users "
 
 func (userRepository *PostgresUserRepository) Save(userData user.User) (user.User, error) {
-	log.Println(userData)
-	rows, err := userRepository.Conn.Query(
-		context.Background(),
+	_, err := userRepository.Conn.Exec(
+		userRepository.Ctx,
 		"INSERT INTO users (id, name, email, cpf, password, birth_date) VALUES ($1, $2, $3, $4, $5, $6)",
 		userData.ID,
 		userData.Name,
@@ -29,15 +28,11 @@ func (userRepository *PostgresUserRepository) Save(userData user.User) (user.Use
 	)
 
 	if err != nil {
-		if err != pgx.ErrNoRows {
-			return user.User{}, err
-		}
+		return user.User{}, err
 	}
 
-	defer rows.Close()
-
-	rows, err = userRepository.Conn.Query(
-		context.Background(),
+	rows, err := userRepository.Conn.Query(
+		userRepository.Ctx,
 		QUERY_ALL_USER_FIELDS+"WHERE id = $1",
 		userData.ID,
 	)

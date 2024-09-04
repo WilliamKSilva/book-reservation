@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"os/exec"
@@ -43,7 +44,10 @@ func main() {
 		log.Fatalf("Error loading .env")
 	}
 
-	pool := db.Connect()
+	ctx := context.Background()
+
+	pool := db.Connect(ctx)
 	defer pool.Close()
-	web.StartListening(8080, pool)
+
+	web.StartListening(ctx, 8080, pool)
 }
