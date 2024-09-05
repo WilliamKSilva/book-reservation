@@ -7,21 +7,21 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/WilliamKSilva/book-reservation/internal/app/auth"
-	"github.com/WilliamKSilva/book-reservation/internal/app/user"
-	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
+	"github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/jwt"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/uuid"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/web/utils"
+	"github.com/WilliamKSilva/book-reservation/internal/services"
+	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func NewAuthHandler(ctx context.Context, dbPool *pgxpool.Pool) *AuthHandler {
-	userRepository := db.PostgresUserRepository{Conn: dbPool, Ctx: ctx}
+	userRepository := repositories.PostgresUserRepository{Conn: dbPool, Ctx: ctx}
 	uuidGenerator := uuid.GoogleUUIDGenerator{}
-	authService := auth.AuthService{
+	authService := services.AuthService{
 		JwtService:  &jwt.GolangJwt{},
-		UserService: user.NewUserService(&userRepository, &uuidGenerator),
+		UserService: services.NewUserService(&userRepository, &uuidGenerator),
 	}
 	return &AuthHandler{AuthService: &authService}
 }
@@ -31,7 +31,7 @@ type IAuthHandler interface {
 }
 
 type AuthHandler struct {
-	AuthService auth.IAuthService
+	AuthService services.IAuthService
 }
 
 // CreateUser godoc
@@ -52,7 +52,7 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var registerRequestDTO auth.RegisterRequestDTO
+	var registerRequestDTO DTOs.RegisterRequestDTO
 	err = json.Unmarshal(b, &registerRequestDTO)
 	if err != nil {
 		httpError := utils.UnprocessableEntityError(utils.ErrorDecodingJson)

@@ -1,20 +1,20 @@
-package db
+package repositories
 
 import (
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/WilliamKSilva/book-reservation/internal/app/user"
+	"github.com/WilliamKSilva/book-reservation/internal/domain"
+	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
 )
 
-// it should save a User entity in the database
-func mockUser() (user.User, error) {
+func mockUser() (domain.User, error) {
 	birthDateTime, err := time.Parse("2006-01-02", "2024-08-13")
 	if err != nil {
-		return user.User{}, err
+		return domain.User{}, err
 	}
-	return user.User{
+	return domain.User{
 		ID:        "ff508158-8da7-4840-b891-38c240f9aee1",
 		Name:      "johndoe",
 		Email:     "johndoe@teste.com",
@@ -25,7 +25,7 @@ func mockUser() (user.User, error) {
 }
 
 func TestPostgresUserRepository(t *testing.T) {
-	ctx, conn := ConnectTestDatabase()
+	ctx, conn := db.ConnectTestDatabase()
 	defer conn.Close()
 
 	t.Run("save user in the database", func(t *testing.T) {
@@ -51,7 +51,7 @@ func TestPostgresUserRepository(t *testing.T) {
 			return
 		}
 
-		err = ResetDatabaseState(ctx, conn)
+		err = db.ResetDatabaseState(ctx, conn)
 		if err != nil {
 			t.Errorf("Error trying to reset database state: %s", err)
 		}

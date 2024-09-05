@@ -12,7 +12,7 @@ import (
 
 func ConnectTestDatabase() (context.Context, *pgxpool.Pool) {
 	ctx := context.Background()
-	err := godotenv.Load("../../../.env")
+	err := godotenv.Load("../../../../.env")
 	if err != nil {
 		log.Printf("Error loading .env: %s", err.Error())
 		os.Exit(1)

@@ -1,4 +1,9 @@
-package auth
+package DTOs
+
+type JwtToken struct {
+	Raw    string
+	Signed string
+}
 
 type LoginUser struct {
 	ID        string `json:"id"`

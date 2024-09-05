@@ -1,4 +1,4 @@
-package user
+package DTOs
 
 type CreateUserRequestDTO struct {
 	// @example {"name": "John Doe", "email": "john.doe@example.com", "password": "teste1234", "cpf": "23212332112", "birth_date": "2024-08-12"}

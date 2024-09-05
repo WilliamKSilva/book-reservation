@@ -7,17 +7,18 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/WilliamKSilva/book-reservation/internal/app/user"
-	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
+	"github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/uuid"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/web/utils"
+	"github.com/WilliamKSilva/book-reservation/internal/services"
+	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func NewUserHandler(ctx context.Context, dbConn *pgxpool.Pool) *UserHandler {
-	userPostgresRepository := db.PostgresUserRepository{Conn: dbConn, Ctx: ctx}
+	userPostgresRepository := repositories.PostgresUserRepository{Conn: dbConn, Ctx: ctx}
 	googleUuidGenerator := uuid.GoogleUUIDGenerator{}
-	userService := user.UserService{
+	userService := services.UserService{
 		UserRepository: &userPostgresRepository,
 		UuidGenerator:  &googleUuidGenerator,
 	}
@@ -32,7 +33,7 @@ type IUserHandler interface {
 }
 
 type UserHandler struct {
-	UserService user.IUserService
+	UserService services.IUserService
 }
 
 // CreateUser godoc
@@ -56,7 +57,7 @@ func (userHandler *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userRequest user.CreateUserRequestDTO
+	var userRequest DTOs.CreateUserRequestDTO
 	err = json.Unmarshal(b, &userRequest)
 	if err != nil {
 		httpError.Code = http.StatusUnprocessableEntity

@@ -1,23 +1,15 @@
-package user
+package services
 
 import (
 	"time"
 
-	_ "github.com/WilliamKSilva/book-reservation/docs"
+	"github.com/WilliamKSilva/book-reservation/internal/domain"
+	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
 
-type User struct {
-	ID        string
-	Name      string
-	Email     string
-	CPF       string
-	Password  string
-	BirthDate time.Time
-}
-
 type IUserRepository interface {
-	Save(user User) (User, error)
-	FindByEmail(email string) (User, error)
+	Save(user domain.User) (domain.User, error)
+	FindByEmail(email string) (domain.User, error)
 }
 
 type IUUIDGenerator interface {
@@ -25,8 +17,8 @@ type IUUIDGenerator interface {
 }
 
 type IUserService interface {
-	Create(CreateUserRequestDTO) (CreateUserResponseDTO, error)
-	FindByEmail(email string) (FindUserByEmailResponseDTO, error)
+	Create(DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error)
+	FindByEmail(email string) (DTOs.FindUserByEmailResponseDTO, error)
 }
 
 func NewUserService(userRepository IUserRepository, uuidGenerator IUUIDGenerator) *UserService {
@@ -41,15 +33,15 @@ type UserService struct {
 	UuidGenerator  IUUIDGenerator
 }
 
-func (userService *UserService) Create(createUserRequestDTO CreateUserRequestDTO) (CreateUserResponseDTO, error) {
+func (userService *UserService) Create(createUserRequestDTO DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error) {
 	birthDateTime, err := time.Parse("2006-01-02", createUserRequestDTO.BirthDate)
 	if err != nil {
-		return CreateUserResponseDTO{}, err
+		return DTOs.CreateUserResponseDTO{}, err
 	}
 
 	uuid := userService.UuidGenerator.Generate()
 
-	user := User{
+	user := domain.User{
 		ID:        uuid,
 		Name:      createUserRequestDTO.Name,
 		Email:     createUserRequestDTO.Email,
@@ -60,10 +52,10 @@ func (userService *UserService) Create(createUserRequestDTO CreateUserRequestDTO
 
 	createdUser, err := userService.UserRepository.Save(user)
 	if err != nil {
-		return CreateUserResponseDTO{}, err
+		return DTOs.CreateUserResponseDTO{}, err
 	}
 
-	return CreateUserResponseDTO{
+	return DTOs.CreateUserResponseDTO{
 		ID:        createdUser.ID,
 		Name:      createdUser.Name,
 		Email:     createdUser.Email,
@@ -73,13 +65,13 @@ func (userService *UserService) Create(createUserRequestDTO CreateUserRequestDTO
 	}, nil
 }
 
-func (userService *UserService) FindByEmail(email string) (FindUserByEmailResponseDTO, error) {
+func (userService *UserService) FindByEmail(email string) (DTOs.FindUserByEmailResponseDTO, error) {
 	user, err := userService.UserRepository.FindByEmail(email)
 	if err != nil {
-		return FindUserByEmailResponseDTO{}, err
+		return DTOs.FindUserByEmailResponseDTO{}, err
 	}
 
-	return FindUserByEmailResponseDTO{
+	return DTOs.FindUserByEmailResponseDTO{
 		ID:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
