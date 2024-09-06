@@ -216,3 +216,24 @@ func TestUserServiceCreate(t *testing.T) {
 		}
 	})
 }
+
+func TestUserServiceFindByEmail(t *testing.T) {
+	userService := services.UserService{
+		UserRepository: NewMockedUserRepositorySuccess(),
+		UuidGenerator:  NewMockedUuidService(),
+	}
+
+	t.Run("should return an empty FindUserByEmailResponseDTO struct and an error if email is missing", func(t *testing.T) {
+		u, err := userService.FindByEmail("")
+
+		if err == nil {
+			t.Error("Expected err, got nil")
+		}
+
+		expected := DTOs.FindUserByEmailResponseDTO{}
+
+		if !reflect.DeepEqual(u, expected) {
+			t.Error("Expected empty FindUserByEmailResponseDTO")
+		}
+	})
+}

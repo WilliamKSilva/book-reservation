@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/WilliamKSilva/book-reservation/internal/domain"
@@ -62,6 +63,10 @@ func (userService *UserService) Create(createUserRequestDTO DTOs.CreateUserReque
 }
 
 func (userService *UserService) FindByEmail(email string) (DTOs.FindUserByEmailResponseDTO, error) {
+	if email == "" {
+		return DTOs.FindUserByEmailResponseDTO{}, errors.New("Email is required")
+	}
+
 	user, err := userService.UserRepository.FindByEmail(email)
 	if err != nil {
 		return DTOs.FindUserByEmailResponseDTO{}, err
