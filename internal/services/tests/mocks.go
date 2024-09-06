@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"errors"
 	"time"
 
 	"github.com/WilliamKSilva/book-reservation/internal/domain"
@@ -20,7 +21,7 @@ func NewMockedJwtService() *MockedJwtService {
 	return &MockedJwtService{}
 }
 
-type MockedUserRepository struct{}
+type MockedUserRepositorySuccess struct{}
 
 func mockUser() (domain.User, error) {
 	birthDateTime, err := time.Parse("2006-01-02", "2024-08-13")
@@ -37,18 +38,33 @@ func mockUser() (domain.User, error) {
 	}, err
 }
 
-func (userRepository *MockedUserRepository) Save(user domain.User) (domain.User, error) {
+func (userRepository *MockedUserRepositorySuccess) Save(user domain.User) (domain.User, error) {
 	u, err := mockUser()
 	return u, err
 }
 
-func (userRepository *MockedUserRepository) FindByEmail(email string) (domain.User, error) {
+func (userRepository *MockedUserRepositorySuccess) FindByEmail(email string) (domain.User, error) {
 	u, err := mockUser()
 	return u, err
 }
 
-func NewMockedUserRepository() *MockedUserRepository {
-	return &MockedUserRepository{}
+func NewMockedUserRepositorySuccess() *MockedUserRepositorySuccess {
+	return &MockedUserRepositorySuccess{}
+}
+
+type MockedUserRepositoryFailure struct{}
+
+func (userRepository *MockedUserRepositoryFailure) Save(user domain.User) (domain.User, error) {
+	return domain.User{}, errors.New("Could not save User in the Database")
+}
+
+func (userRepository *MockedUserRepositoryFailure) FindByEmail(email string) (domain.User, error) {
+	u, err := mockUser()
+	return u, err
+}
+
+func NewMockedUserRepositoryFailure() *MockedUserRepositoryFailure {
+	return &MockedUserRepositoryFailure{}
 }
 
 type MockedUuidService struct{}

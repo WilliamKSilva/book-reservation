@@ -20,7 +20,7 @@ func MockCreateUserRequestDTO() DTOs.CreateUserRequestDTO {
 
 func TestUserServiceCreate(t *testing.T) {
 	userService := services.UserService{
-		UserRepository: NewMockedUserRepository(),
+		UserRepository: NewMockedUserRepositorySuccess(),
 		UuidGenerator:  NewMockedUuidService(),
 	}
 
@@ -136,6 +136,49 @@ func TestUserServiceCreate(t *testing.T) {
 
 		if vErr.Field != "BirthDate" {
 			t.Errorf("Expected validation error for 'Name' field, but got %s", vErr.Field)
+		}
+	})
+
+	t.Run("should return ValidationError with BirthDate field missing", func(t *testing.T) {
+		req := MockCreateUserRequestDTO()
+		_, err := userService.Create(DTOs.CreateUserRequestDTO{
+			Name:     req.Name,
+			Email:    req.Email,
+			Password: req.Password,
+			CPF:      req.CPF,
+		})
+
+		if err == nil {
+			t.Error("Expected a validate data error, got nil")
+		}
+
+		var vErr *services.ValidationError
+		if !errors.As(err, &vErr) {
+			t.Errorf("Expected error of type *ValidationError, but got %T", err)
+		}
+
+		if vErr.Field != "BirthDate" {
+			t.Errorf("Expected validation error for 'Name' field, but got %s", vErr.Field)
+		}
+	})
+
+	t.Run("should return an empty user struct and an error if UserRepository fails", func(t *testing.T) {
+		userService.UserRepository = NewMockedUserRepositoryFailure()
+		req := MockCreateUserRequestDTO()
+		u, err := userService.Create(DTOs.CreateUserRequestDTO{
+			Name:      req.Name,
+			Email:     req.Email,
+			Password:  req.Password,
+			CPF:       req.CPF,
+			BirthDate: req.BirthDate,
+		})
+
+		if err == nil {
+			t.Error("Expected UserRepository error, got nil")
+		}
+
+		if u.ID != "" {
+			t.Error("User returned by UserRepository should be empty")
 		}
 	})
 }
