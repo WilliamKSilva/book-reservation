@@ -1,4 +1,4 @@
-package tests
+package services_tests
 
 import (
 	"errors"
@@ -55,7 +55,7 @@ func NewMockedUserRepositorySuccess() *MockedUserRepositorySuccess {
 type MockedUserRepositoryFailure struct{}
 
 func (userRepository *MockedUserRepositoryFailure) Save(user domain.User) (domain.User, error) {
-	return domain.User{}, errors.New("Could not save User in the Database")
+	return domain.User{}, errors.New("generic MockedUserRepositoryFailure save error")
 }
 
 func (userRepository *MockedUserRepositoryFailure) FindByEmail(email string) (domain.User, error) {

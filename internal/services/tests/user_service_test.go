@@ -1,9 +1,11 @@
-package tests
+package services_tests
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 
+	repositories_tests "github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories/tests"
 	"github.com/WilliamKSilva/book-reservation/internal/services"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
@@ -163,6 +165,7 @@ func TestUserServiceCreate(t *testing.T) {
 	})
 
 	t.Run("should return an empty user struct and an error if UserRepository fails", func(t *testing.T) {
+		// Sets failure UserRepository
 		userService.UserRepository = NewMockedUserRepositoryFailure()
 		req := MockCreateUserRequestDTO()
 		u, err := userService.Create(DTOs.CreateUserRequestDTO{
@@ -179,6 +182,37 @@ func TestUserServiceCreate(t *testing.T) {
 
 		if u.ID != "" {
 			t.Error("User returned by UserRepository should be empty")
+		}
+		// Resets to success UserRepository
+		userService.UserRepository = NewMockedUserRepositorySuccess()
+	})
+
+	t.Run("should return an CreateUserResponseDTO struct and an empty error on success", func(t *testing.T) {
+		req := MockCreateUserRequestDTO()
+		u, err := userService.Create(DTOs.CreateUserRequestDTO{
+			Name:      req.Name,
+			Email:     req.Email,
+			Password:  req.Password,
+			CPF:       req.CPF,
+			BirthDate: req.BirthDate,
+		})
+
+		if err != nil {
+			t.Errorf("Expected nil, got error: %s", err.Error())
+		}
+
+		mocked, _ := repositories_tests.MockUser()
+		expected := DTOs.CreateUserResponseDTO{
+			ID:        mocked.ID,
+			Name:      mocked.Name,
+			Email:     mocked.Email,
+			Password:  mocked.Password,
+			CPF:       mocked.CPF,
+			BirthDate: mocked.BirthDate.String(),
+		}
+
+		if !reflect.DeepEqual(u, expected) {
+			t.Error("CreateUserResponseDTO struct returned do not match with expected")
 		}
 	})
 }

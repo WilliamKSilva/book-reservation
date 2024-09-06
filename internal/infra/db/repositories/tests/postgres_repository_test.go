@@ -1,21 +1,20 @@
-package repositories
+package repositories_tests
 
 import (
 	"context"
 	"os"
 	"reflect"
 	"testing"
-	"time"
 
-	"github.com/WilliamKSilva/book-reservation/internal/domain"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
+	"github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
 func ConnectTestDatabase(t *testing.T) (context.Context, *pgxpool.Pool) {
 	ctx := context.Background()
-	err := godotenv.Load("../../../../.env")
+	err := godotenv.Load("../../../../../.env")
 	if err != nil {
 		t.Errorf("Error loading .env: %s", err.Error())
 	}
@@ -38,32 +37,17 @@ func ConnectTestDatabase(t *testing.T) (context.Context, *pgxpool.Pool) {
 	return ctx, pool
 }
 
-func mockUser() (domain.User, error) {
-	birthDateTime, err := time.Parse("2006-01-02", "2024-08-13")
-	if err != nil {
-		return domain.User{}, err
-	}
-	return domain.User{
-		ID:        "ff508158-8da7-4840-b891-38c240f9aee1",
-		Name:      "johndoe",
-		Email:     "johndoe@teste.com",
-		CPF:       "12312312323",
-		Password:  "teste1234",
-		BirthDate: birthDateTime,
-	}, err
-}
-
 func TestPostgresUserRepository(t *testing.T) {
 	ctx, conn := ConnectTestDatabase(t)
 	defer conn.Close()
 
 	t.Run("save user in the database", func(t *testing.T) {
-		userRepository := PostgresUserRepository{
+		userRepository := repositories.PostgresUserRepository{
 			Conn: conn,
 			Ctx:  ctx,
 		}
 
-		mockedUser, err := mockUser()
+		mockedUser, err := MockUser()
 		if err != nil {
 			t.Error("Error mocking User", err)
 			return
