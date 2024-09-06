@@ -59,8 +59,7 @@ func (userRepository *MockedUserRepositoryFailure) Save(user domain.User) (domai
 }
 
 func (userRepository *MockedUserRepositoryFailure) FindByEmail(email string) (domain.User, error) {
-	u, err := mockUser()
-	return u, err
+	return domain.User{}, errors.New("generic MockedUserRepositoryFailure save error")
 }
 
 func NewMockedUserRepositoryFailure() *MockedUserRepositoryFailure {

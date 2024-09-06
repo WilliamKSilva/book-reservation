@@ -236,4 +236,44 @@ func TestUserServiceFindByEmail(t *testing.T) {
 			t.Error("Expected empty FindUserByEmailResponseDTO")
 		}
 	})
+
+	t.Run("should return an empty FindUserByEmailResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
+		userService.UserRepository = NewMockedUserRepositoryFailure()
+
+		u, err := userService.FindByEmail("teste@teste.com")
+
+		if err == nil {
+			t.Error("Expected err, got nil")
+		}
+
+		expected := DTOs.FindUserByEmailResponseDTO{}
+
+		if !reflect.DeepEqual(u, expected) {
+			t.Error("Expected empty FindUserByEmailResponseDTO")
+		}
+
+		userService.UserRepository = NewMockedUserRepositorySuccess()
+	})
+
+	t.Run("should return a FindUserByEmailResponseDTO struct and no error on success", func(t *testing.T) {
+		u, err := userService.FindByEmail("teste@teste.com")
+
+		if err != nil {
+			t.Error("Expected nil, got err")
+		}
+
+		mockedUser, _ := repositories_tests.MockUser()
+		expected := DTOs.FindUserByEmailResponseDTO{
+			ID:        mockedUser.ID,
+			Name:      mockedUser.Name,
+			Email:     mockedUser.Email,
+			Password:  mockedUser.Password,
+			CPF:       mockedUser.CPF,
+			BirthDate: mockedUser.BirthDate.String(),
+		}
+
+		if !reflect.DeepEqual(u, expected) {
+			t.Error("FindUserByEmailResponseDTO returned does not match with expected")
+		}
+	})
 }
