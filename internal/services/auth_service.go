@@ -6,17 +6,13 @@ import (
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
 
-type IJwtService interface {
-	New() (DTOs.JwtToken, error)
-}
-
 type IAuthService interface {
 	Login(email string, password string) (DTOs.LoginResponseDTO, error)
 	Register(registerRequestDTO DTOs.RegisterRequestDTO) (DTOs.RegisterResponseDTO, error)
 }
 
 type AuthService struct {
-	JwtService  IJwtService
+	JwtService  JwtServiceAdapter
 	UserService IUserService
 }
 

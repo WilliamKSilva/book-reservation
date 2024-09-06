@@ -7,21 +7,12 @@ import (
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
 
-type IUserRepository interface {
-	Save(user domain.User) (domain.User, error)
-	FindByEmail(email string) (domain.User, error)
-}
-
-type IUUIDGenerator interface {
-	Generate() string
-}
-
 type IUserService interface {
 	Create(DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error)
 	FindByEmail(email string) (DTOs.FindUserByEmailResponseDTO, error)
 }
 
-func NewUserService(userRepository IUserRepository, uuidGenerator IUUIDGenerator) *UserService {
+func NewUserService(userRepository UserRepositoryAdapter, uuidGenerator UuidServiceAdapter) *UserService {
 	return &UserService{
 		UserRepository: userRepository,
 		UuidGenerator:  uuidGenerator,
@@ -29,11 +20,16 @@ func NewUserService(userRepository IUserRepository, uuidGenerator IUUIDGenerator
 }
 
 type UserService struct {
-	UserRepository IUserRepository
-	UuidGenerator  IUUIDGenerator
+	UserRepository UserRepositoryAdapter
+	UuidGenerator  UuidServiceAdapter
 }
 
 func (userService *UserService) Create(createUserRequestDTO DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error) {
+	vErr := ValidateStructData(createUserRequestDTO)
+	if vErr != nil {
+		return DTOs.CreateUserResponseDTO{}, vErr
+	}
+
 	birthDateTime, err := time.Parse("2006-01-02", createUserRequestDTO.BirthDate)
 	if err != nil {
 		return DTOs.CreateUserResponseDTO{}, err
