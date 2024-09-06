@@ -164,7 +164,7 @@ func TestUserServiceCreate(t *testing.T) {
 		}
 	})
 
-	t.Run("should return an empty user struct and an error if UserRepository fails", func(t *testing.T) {
+	t.Run("should return an empty CreateUserResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
 		// Sets failure UserRepository
 		userService.UserRepository = NewMockedUserRepositoryFailure()
 		req := MockCreateUserRequestDTO()
@@ -181,7 +181,7 @@ func TestUserServiceCreate(t *testing.T) {
 		}
 
 		if u.ID != "" {
-			t.Error("User returned by UserRepository should be empty")
+			t.Error("CreateUserResponseDTO returned by UserRepository should be empty")
 		}
 		// Resets to success UserRepository
 		userService.UserRepository = NewMockedUserRepositorySuccess()
