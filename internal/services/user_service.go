@@ -1,12 +1,17 @@
 package services
 
 import (
-	"errors"
 	"time"
 
 	"github.com/WilliamKSilva/book-reservation/internal/domain"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
+
+type UserNotFoundError struct{}
+
+func (e *UserNotFoundError) Error() string {
+	return "User not found"
+}
 
 type IUserService interface {
 	Create(DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error)
@@ -63,13 +68,13 @@ func (userService *UserService) Create(createUserRequestDTO DTOs.CreateUserReque
 }
 
 func (userService *UserService) FindByEmail(email string) (DTOs.FindUserByEmailResponseDTO, error) {
-	if email == "" {
-		return DTOs.FindUserByEmailResponseDTO{}, errors.New("Email is required")
-	}
-
 	user, err := userService.UserRepository.FindByEmail(email)
 	if err != nil {
 		return DTOs.FindUserByEmailResponseDTO{}, err
+	}
+
+	if user.ID == "" {
+		return DTOs.FindUserByEmailResponseDTO{}, &UserNotFoundError{}
 	}
 
 	return DTOs.FindUserByEmailResponseDTO{

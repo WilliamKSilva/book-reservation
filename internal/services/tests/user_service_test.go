@@ -223,8 +223,10 @@ func TestUserServiceFindByEmail(t *testing.T) {
 		UuidGenerator:  NewMockedUuidService(),
 	}
 
-	t.Run("should return an empty FindUserByEmailResponseDTO struct and an error if email is missing", func(t *testing.T) {
-		u, err := userService.FindByEmail("")
+	t.Run("should return an empty FindUserByEmailResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
+		userService.UserRepository = NewMockedUserRepositoryFailure()
+
+		u, err := userService.FindByEmail("teste@teste.com")
 
 		if err == nil {
 			t.Error("Expected err, got nil")
@@ -235,15 +237,22 @@ func TestUserServiceFindByEmail(t *testing.T) {
 		if !reflect.DeepEqual(u, expected) {
 			t.Error("Expected empty FindUserByEmailResponseDTO")
 		}
+
+		userService.UserRepository = NewMockedUserRepositorySuccess()
 	})
 
-	t.Run("should return an empty FindUserByEmailResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
-		userService.UserRepository = NewMockedUserRepositoryFailure()
+	t.Run("should return an empty FindUserByEmailResponseDTO struct and a UserNotFoundError if UserRepository return empty User struct", func(t *testing.T) {
+		userService.UserRepository = NewMockedUserRepositorySuccessFindByEmailNotFound()
 
 		u, err := userService.FindByEmail("teste@teste.com")
 
 		if err == nil {
-			t.Error("Expected err, got nil")
+			t.Error("Expected a UserNotFoundError, got nil")
+		}
+
+		var notFoundErr *services.UserNotFoundError
+		if !errors.As(err, &notFoundErr) {
+			t.Errorf("Expected error of type *UserNotFoundError, but got %T", err)
 		}
 
 		expected := DTOs.FindUserByEmailResponseDTO{}

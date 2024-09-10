@@ -44,6 +44,22 @@ func NewMockedUserRepositorySuccess() *MockedUserRepositorySuccess {
 	return &MockedUserRepositorySuccess{}
 }
 
+// This is horrible, but we can't override the FindByEmail method of MockedUserRepoistorySuccess
+type MockedUserRepositorySuccessFindByEmailNotFound struct{}
+
+func (userRepository *MockedUserRepositorySuccessFindByEmailNotFound) Save(user domain.User) (domain.User, error) {
+	u, err := repositories_tests.MockUser()
+	return u, err
+}
+
+func (userRepository *MockedUserRepositorySuccessFindByEmailNotFound) FindByEmail(email string) (domain.User, error) {
+	return domain.User{}, nil
+}
+
+func NewMockedUserRepositorySuccessFindByEmailNotFound() *MockedUserRepositorySuccessFindByEmailNotFound {
+	return &MockedUserRepositorySuccessFindByEmailNotFound{}
+}
+
 type MockedUserRepositoryFailure struct{}
 
 func (userRepository *MockedUserRepositoryFailure) Save(user domain.User) (domain.User, error) {
@@ -119,9 +135,9 @@ func NewMockedUserServiceFailure() *MockedUserServiceFailure {
 }
 
 func (userService *MockedUserServiceFailure) Create(req DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error) {
-	return DTOs.CreateUserResponseDTO{}, errors.New("Generic MockedUserServiceFailure error")
+	return DTOs.CreateUserResponseDTO{}, errors.New("generic MockedUserServiceFailure error")
 }
 
 func (userService *MockedUserServiceFailure) FindByEmail(email string) (DTOs.FindUserByEmailResponseDTO, error) {
-	return DTOs.FindUserByEmailResponseDTO{}, errors.New("Generic MockedUserServiceFailure error")
+	return DTOs.FindUserByEmailResponseDTO{}, errors.New("generic MockedUserServiceFailure error")
 }
