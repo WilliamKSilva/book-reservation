@@ -19,12 +19,7 @@ type AuthService struct {
 func (authService *AuthService) Login(email string, password string) (DTOs.LoginResponseDTO, error) {
 	user, err := authService.UserService.FindByEmail(email)
 	if err != nil {
-		loginResponse := DTOs.LoginResponseDTO{
-			User:        DTOs.LoginUser(user),
-			AccessToken: DTOs.JwtToken{},
-		}
-
-		return loginResponse, err
+		return DTOs.LoginResponseDTO{}, err
 	}
 
 	if user.Password != password {
