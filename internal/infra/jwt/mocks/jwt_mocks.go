@@ -7,16 +7,17 @@ import (
 
 type MockedJwtServiceSuccess struct{}
 
-func (jwt *MockedJwtServiceSuccess) New() (DTOs.JwtToken, error) {
-	raw := `
+const MockedRawJwtToken string = `
 		eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
 		eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
 		SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 	`
+const MockedSignedJwtToken string = "tokensigned12"
 
+func (jwt *MockedJwtServiceSuccess) New() (DTOs.JwtToken, error) {
 	return DTOs.JwtToken{
-		Raw:    raw,
-		Signed: "tokensigned12",
+		Raw:    MockedRawJwtToken,
+		Signed: MockedSignedJwtToken,
 	}, nil
 }
 

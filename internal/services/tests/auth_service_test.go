@@ -124,4 +124,41 @@ func TestAuthServiceLogin(t *testing.T) {
 			t.Error("Expected empty LoginResponseDTO struct, got populated struct")
 		}
 	})
+
+	t.Run("should return a LoginResponseDTO and no error on success", func(t *testing.T) {
+		userRepository := repositories_mocks.NewMockedUserRepositorySuccess()
+		uuidGenerator := uuid_mocks.NewMockedUuidService()
+		userService := services.NewUserService(userRepository, uuidGenerator)
+
+		authService := services.AuthService{
+			JwtService:  jwt_mocks.NewMockedJwtServiceSuccess(),
+			UserService: userService,
+		}
+
+		u, _ := user.MockUser()
+		res, err := authService.Login(u.Email, u.Password)
+
+		if err != nil {
+			t.Errorf("Expected nil, got error: %s", err.Error())
+		}
+
+		expected := DTOs.LoginResponseDTO{
+			User: DTOs.LoginUser{
+				ID:        u.ID,
+				Name:      u.Name,
+				Email:     u.Email,
+				Password:  u.Password,
+				CPF:       u.CPF,
+				BirthDate: u.BirthDate.String(),
+			},
+			AccessToken: DTOs.JwtToken{
+				Raw:    jwt_mocks.MockedRawJwtToken,
+				Signed: jwt_mocks.MockedSignedJwtToken,
+			},
+		}
+
+		if !reflect.DeepEqual(expected, res) {
+			t.Errorf("Expected LoginResponseDTO %T, got %T", expected, res)
+		}
+	})
 }
