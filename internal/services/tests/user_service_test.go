@@ -10,6 +10,7 @@ import (
 	uuid_mocks "github.com/WilliamKSilva/book-reservation/internal/infra/uuid/mocks"
 	"github.com/WilliamKSilva/book-reservation/internal/services"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
+	services_errors "github.com/WilliamKSilva/book-reservation/internal/services/errors"
 )
 
 func MockCreateUserRequestDTO() DTOs.CreateUserRequestDTO {
@@ -41,7 +42,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Error("Expected a validate data error, got nil")
 		}
 
-		var vErr *services.ValidationError
+		var vErr *services_errors.ValidationError
 		if !errors.As(err, &vErr) {
 			t.Errorf("Expected error of type *ValidationError, but got %T", err)
 		}
@@ -64,7 +65,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Error("Expected a validate data error, got nil")
 		}
 
-		var vErr *services.ValidationError
+		var vErr *services_errors.ValidationError
 		if !errors.As(err, &vErr) {
 			t.Errorf("Expected error of type *ValidationError, but got %T", err)
 		}
@@ -87,7 +88,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Error("Expected a validate data error, got nil")
 		}
 
-		var vErr *services.ValidationError
+		var vErr *services_errors.ValidationError
 		if !errors.As(err, &vErr) {
 			t.Errorf("Expected error of type *ValidationError, but got %T", err)
 		}
@@ -110,7 +111,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Error("Expected a validate data error, got nil")
 		}
 
-		var vErr *services.ValidationError
+		var vErr *services_errors.ValidationError
 		if !errors.As(err, &vErr) {
 			t.Errorf("Expected error of type *ValidationError, but got %T", err)
 		}
@@ -133,7 +134,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Error("Expected a validate data error, got nil")
 		}
 
-		var vErr *services.ValidationError
+		var vErr *services_errors.ValidationError
 		if !errors.As(err, &vErr) {
 			t.Errorf("Expected error of type *ValidationError, but got %T", err)
 		}
@@ -156,7 +157,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Error("Expected a validate data error, got nil")
 		}
 
-		var vErr *services.ValidationError
+		var vErr *services_errors.ValidationError
 		if !errors.As(err, &vErr) {
 			t.Errorf("Expected error of type *ValidationError, but got %T", err)
 		}
@@ -252,7 +253,7 @@ func TestUserServiceFindByEmail(t *testing.T) {
 			t.Error("Expected a UserNotFoundError, got nil")
 		}
 
-		var notFoundErr *services.UserNotFoundError
+		var notFoundErr *services_errors.UserNotFoundError
 		if !errors.As(err, &notFoundErr) {
 			t.Errorf("Expected error of type *UserNotFoundError, but got %T", err)
 		}

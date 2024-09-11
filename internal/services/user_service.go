@@ -5,15 +5,8 @@ import (
 
 	"github.com/WilliamKSilva/book-reservation/internal/domain/user"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
+	services_errors "github.com/WilliamKSilva/book-reservation/internal/services/errors"
 )
-
-type UserNotFoundError struct {
-	Message string
-}
-
-func (e *UserNotFoundError) Error() string {
-	return e.Message
-}
 
 type IUserService interface {
 	Create(DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error)
@@ -76,7 +69,7 @@ func (userService *UserService) FindByEmail(email string) (DTOs.FindUserByEmailR
 	}
 
 	if user.ID == "" {
-		return DTOs.FindUserByEmailResponseDTO{}, &UserNotFoundError{
+		return DTOs.FindUserByEmailResponseDTO{}, &services_errors.UserNotFoundError{
 			Message: "user not found",
 		}
 	}

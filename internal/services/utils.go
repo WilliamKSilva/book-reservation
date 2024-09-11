@@ -1,19 +1,12 @@
 package services
 
 import (
-	"fmt"
 	"reflect"
+
+	services_errors "github.com/WilliamKSilva/book-reservation/internal/services/errors"
 )
 
-type ValidationError struct {
-	Field string
-}
-
-func (e *ValidationError) Error() string {
-	return fmt.Sprintf("Missing field: %s", e.Field)
-}
-
-func ValidateStructData[T any](s T) *ValidationError {
+func ValidateStructData[T any](s T) *services_errors.ValidationError {
 	v := reflect.ValueOf(s)
 
 	t := v.Type()
@@ -24,7 +17,7 @@ func ValidateStructData[T any](s T) *ValidationError {
 
 		// Check if the field is zero (empty)
 		if reflect.DeepEqual(fieldVal.Interface(), reflect.Zero(fieldVal.Type()).Interface()) {
-			return &ValidationError{
+			return &services_errors.ValidationError{
 				Field: t.Field(i).Name,
 			}
 		}

@@ -1,9 +1,8 @@
 package services
 
 import (
-	"errors"
-
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
+	services_errors "github.com/WilliamKSilva/book-reservation/internal/services/errors"
 )
 
 type IAuthService interface {
@@ -23,22 +22,22 @@ func (authService *AuthService) Login(email string, password string) (DTOs.Login
 	}
 
 	if user.Password != password {
-		loginResponse := DTOs.LoginResponseDTO{
-			User:        DTOs.LoginUser(user),
+		res := DTOs.LoginResponseDTO{
+			User:        DTOs.LoginUser{},
 			AccessToken: DTOs.JwtToken{},
 		}
 
-		return loginResponse, errors.New("wrong password")
+		return res, &services_errors.WrongPasswordError{}
 	}
 
 	accessToken, err := authService.JwtService.New()
 	if err != nil {
-		loginResponse := DTOs.LoginResponseDTO{
+		res := DTOs.LoginResponseDTO{
 			User:        DTOs.LoginUser(user),
 			AccessToken: DTOs.JwtToken{},
 		}
 
-		return loginResponse, err
+		return res, err
 	}
 
 	loginResponse := DTOs.LoginResponseDTO{
