@@ -21,6 +21,7 @@ func (authService *AuthService) Login(email string, password string) (DTOs.Login
 		return DTOs.LoginResponseDTO{}, err
 	}
 
+	// TODO: add password validation based on encryption that will be added
 	if user.Password != password {
 		res := DTOs.LoginResponseDTO{
 			User:        DTOs.LoginUser{},
@@ -33,7 +34,7 @@ func (authService *AuthService) Login(email string, password string) (DTOs.Login
 	accessToken, err := authService.JwtService.New()
 	if err != nil {
 		res := DTOs.LoginResponseDTO{
-			User:        DTOs.LoginUser(user),
+			User:        DTOs.LoginUser{},
 			AccessToken: DTOs.JwtToken{},
 		}
 

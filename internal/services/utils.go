@@ -1,10 +1,15 @@
 package services
 
 import (
+	"log"
 	"reflect"
 
 	services_errors "github.com/WilliamKSilva/book-reservation/internal/services/errors"
 )
+
+func LogUnexpectedError(service string, method string, message string) {
+	log.Printf("ERROR: unexpeted error at service %s on method %s\n%s", service, method, message)
+}
 
 func ValidateStructData[T any](s T) *services_errors.ValidationError {
 	v := reflect.ValueOf(s)

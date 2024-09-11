@@ -68,6 +68,8 @@ func (userService *UserService) FindByEmail(email string) (DTOs.FindUserByEmailR
 		return DTOs.FindUserByEmailResponseDTO{}, err
 	}
 
+	// TODO: add Password encryption
+
 	if user.ID == "" {
 		return DTOs.FindUserByEmailResponseDTO{}, &services_errors.UserNotFoundError{
 			Message: "user not found",

@@ -95,4 +95,33 @@ func TestAuthServiceLogin(t *testing.T) {
 			t.Error("Expected empty LoginResponseDTO struct, got populated struct")
 		}
 	})
+
+	t.Run("should return a InternalServerError if JwtService fails", func(t *testing.T) {
+		userRepository := repositories_mocks.NewMockedUserRepositorySuccess()
+		uuidGenerator := uuid_mocks.NewMockedUuidService()
+		userService := services.NewUserService(userRepository, uuidGenerator)
+
+		authService := services.AuthService{
+			JwtService:  jwt_mocks.NewMockedJwtServiceFailure(),
+			UserService: userService,
+		}
+
+		u, _ := user.MockUser()
+		res, err := authService.Login(u.Email, u.Password)
+
+		if err == nil {
+			t.Error("Expected err, got nil")
+		}
+
+		var internalServerError *services_errors.InternalServerError
+		if !errors.As(err, &internalServerError) {
+			t.Errorf("Expected error of type InternalServerError, but got %s", err.Error())
+		}
+
+		expected := DTOs.LoginResponseDTO{}
+
+		if !reflect.DeepEqual(expected, res) {
+			t.Error("Expected empty LoginResponseDTO struct, got populated struct")
+		}
+	})
 }
