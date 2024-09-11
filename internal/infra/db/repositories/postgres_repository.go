@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 
-	"github.com/WilliamKSilva/book-reservation/internal/domain"
+	"github.com/WilliamKSilva/book-reservation/internal/domain/user"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -15,7 +15,7 @@ type PostgresUserRepository struct {
 
 const QUERY_ALL_USER_FIELDS = "SELECT id, name, email, cpf, password, birth_date FROM users "
 
-func (userRepository *PostgresUserRepository) Save(userData domain.User) (domain.User, error) {
+func (userRepository *PostgresUserRepository) Save(userData user.User) (user.User, error) {
 	_, err := userRepository.Conn.Exec(
 		userRepository.Ctx,
 		"INSERT INTO users (id, name, email, cpf, password, birth_date) VALUES ($1, $2, $3, $4, $5, $6)",
@@ -28,7 +28,7 @@ func (userRepository *PostgresUserRepository) Save(userData domain.User) (domain
 	)
 
 	if err != nil {
-		return domain.User{}, err
+		return user.User{}, err
 	}
 
 	rows, err := userRepository.Conn.Query(
@@ -38,23 +38,23 @@ func (userRepository *PostgresUserRepository) Save(userData domain.User) (domain
 	)
 
 	if err != nil {
-		return domain.User{}, err
+		return user.User{}, err
 	}
 
 	defer rows.Close()
 
-	var u domain.User
+	var u user.User
 	for rows.Next() {
 		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.CPF, &u.Password, &u.BirthDate)
 		if err != nil {
-			return domain.User{}, err
+			return user.User{}, err
 		}
 	}
 
 	return u, nil
 }
 
-func (userRepository *PostgresUserRepository) FindByEmail(email string) (domain.User, error) {
+func (userRepository *PostgresUserRepository) FindByEmail(email string) (user.User, error) {
 	rows, err := userRepository.Conn.Query(
 		context.Background(),
 		QUERY_ALL_USER_FIELDS+"WHERE email = $1",
@@ -63,15 +63,15 @@ func (userRepository *PostgresUserRepository) FindByEmail(email string) (domain.
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return domain.User{}, err
+			return user.User{}, err
 		}
 	}
 
-	var u domain.User
+	var u user.User
 	for rows.Next() {
 		err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.CPF, &u.Password, &u.BirthDate)
 		if err != nil {
-			return domain.User{}, err
+			return user.User{}, err
 		}
 	}
 

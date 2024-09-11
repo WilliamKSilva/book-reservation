@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/WilliamKSilva/book-reservation/internal/domain"
+	"github.com/WilliamKSilva/book-reservation/internal/domain/user"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
 
@@ -10,8 +10,8 @@ type JwtServiceAdapter interface {
 }
 
 type UserRepositoryAdapter interface {
-	Save(user domain.User) (domain.User, error)
-	FindByEmail(email string) (domain.User, error)
+	Save(user user.User) (user.User, error)
+	FindByEmail(email string) (user.User, error)
 }
 
 type UuidServiceAdapter interface {

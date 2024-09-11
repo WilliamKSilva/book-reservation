@@ -1,17 +1,13 @@
-package repositories_tests
+package user
 
-import (
-	"time"
+import "time"
 
-	"github.com/WilliamKSilva/book-reservation/internal/domain"
-)
-
-func MockUser() (domain.User, error) {
+func MockUser() (User, error) {
 	birthDateTime, err := time.Parse("2006-01-02", "2024-08-13")
 	if err != nil {
-		return domain.User{}, err
+		return User{}, err
 	}
-	return domain.User{
+	return User{
 		ID:        "ff508158-8da7-4840-b891-38c240f9aee1",
 		Name:      "johndoe",
 		Email:     "johndoe@teste.com",

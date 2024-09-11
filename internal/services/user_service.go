@@ -3,7 +3,7 @@ package services
 import (
 	"time"
 
-	"github.com/WilliamKSilva/book-reservation/internal/domain"
+	"github.com/WilliamKSilva/book-reservation/internal/domain/user"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
 
@@ -45,7 +45,7 @@ func (userService *UserService) Create(createUserRequestDTO DTOs.CreateUserReque
 
 	uuid := userService.UuidGenerator.Generate()
 
-	user := domain.User{
+	user := user.User{
 		ID:        uuid,
 		Name:      createUserRequestDTO.Name,
 		Email:     createUserRequestDTO.Email,

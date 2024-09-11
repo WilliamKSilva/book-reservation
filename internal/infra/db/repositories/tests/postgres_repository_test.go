@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/WilliamKSilva/book-reservation/internal/domain/user"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/db"
 	"github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -47,7 +48,7 @@ func TestPostgresUserRepository(t *testing.T) {
 			Ctx:  ctx,
 		}
 
-		mockedUser, err := MockUser()
+		mockedUser, err := user.MockUser()
 		if err != nil {
 			t.Error("Error mocking User", err)
 			return

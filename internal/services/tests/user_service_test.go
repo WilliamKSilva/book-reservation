@@ -5,7 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	repositories_tests "github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories/tests"
+	"github.com/WilliamKSilva/book-reservation/internal/domain/user"
+	repositories_mocks "github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories/mocks"
+	uuid_mocks "github.com/WilliamKSilva/book-reservation/internal/infra/uuid/mocks"
 	"github.com/WilliamKSilva/book-reservation/internal/services"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
@@ -22,8 +24,8 @@ func MockCreateUserRequestDTO() DTOs.CreateUserRequestDTO {
 
 func TestUserServiceCreate(t *testing.T) {
 	userService := services.UserService{
-		UserRepository: NewMockedUserRepositorySuccess(),
-		UuidGenerator:  NewMockedUuidService(),
+		UserRepository: repositories_mocks.NewMockedUserRepositorySuccess(),
+		UuidGenerator:  uuid_mocks.NewMockedUuidService(),
 	}
 
 	t.Run("should return ValidationError with Name field missing", func(t *testing.T) {
@@ -166,7 +168,7 @@ func TestUserServiceCreate(t *testing.T) {
 
 	t.Run("should return an empty CreateUserResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
 		// Sets failure UserRepository
-		userService.UserRepository = NewMockedUserRepositoryFailure()
+		userService.UserRepository = repositories_mocks.NewMockedUserRepositoryFailure()
 		req := MockCreateUserRequestDTO()
 		u, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Name:      req.Name,
@@ -184,7 +186,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Error("CreateUserResponseDTO returned by UserRepository should be empty")
 		}
 		// Resets to success UserRepository
-		userService.UserRepository = NewMockedUserRepositorySuccess()
+		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccess()
 	})
 
 	t.Run("should return an CreateUserResponseDTO struct and an empty error on success", func(t *testing.T) {
@@ -201,7 +203,7 @@ func TestUserServiceCreate(t *testing.T) {
 			t.Errorf("Expected nil, got error: %s", err.Error())
 		}
 
-		mocked, _ := repositories_tests.MockUser()
+		mocked, _ := user.MockUser()
 		expected := DTOs.CreateUserResponseDTO{
 			ID:        mocked.ID,
 			Name:      mocked.Name,
@@ -219,12 +221,12 @@ func TestUserServiceCreate(t *testing.T) {
 
 func TestUserServiceFindByEmail(t *testing.T) {
 	userService := services.UserService{
-		UserRepository: NewMockedUserRepositorySuccess(),
-		UuidGenerator:  NewMockedUuidService(),
+		UserRepository: repositories_mocks.NewMockedUserRepositorySuccess(),
+		UuidGenerator:  uuid_mocks.NewMockedUuidService(),
 	}
 
 	t.Run("should return an empty FindUserByEmailResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
-		userService.UserRepository = NewMockedUserRepositoryFailure()
+		userService.UserRepository = repositories_mocks.NewMockedUserRepositoryFailure()
 
 		u, err := userService.FindByEmail("teste@teste.com")
 
@@ -238,11 +240,11 @@ func TestUserServiceFindByEmail(t *testing.T) {
 			t.Error("Expected empty FindUserByEmailResponseDTO")
 		}
 
-		userService.UserRepository = NewMockedUserRepositorySuccess()
+		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccess()
 	})
 
 	t.Run("should return an empty FindUserByEmailResponseDTO struct and a UserNotFoundError if UserRepository return empty User struct", func(t *testing.T) {
-		userService.UserRepository = NewMockedUserRepositorySuccessFindByEmailNotFound()
+		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccessFindByEmailNotFound()
 
 		u, err := userService.FindByEmail("teste@teste.com")
 
@@ -261,7 +263,7 @@ func TestUserServiceFindByEmail(t *testing.T) {
 			t.Error("Expected empty FindUserByEmailResponseDTO")
 		}
 
-		userService.UserRepository = NewMockedUserRepositorySuccess()
+		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccess()
 	})
 
 	t.Run("should return a FindUserByEmailResponseDTO struct and no error on success", func(t *testing.T) {
@@ -271,7 +273,7 @@ func TestUserServiceFindByEmail(t *testing.T) {
 			t.Error("Expected nil, got err")
 		}
 
-		mockedUser, _ := repositories_tests.MockUser()
+		mockedUser, _ := user.MockUser()
 		expected := DTOs.FindUserByEmailResponseDTO{
 			ID:        mockedUser.ID,
 			Name:      mockedUser.Name,
