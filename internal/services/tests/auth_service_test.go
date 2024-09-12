@@ -17,8 +17,8 @@ import (
 func TestAuthServiceLogin(t *testing.T) {
 	t.Run("should return an empty LoginResponseDTO struct and an error if UserService FindByEmail fails", func(t *testing.T) {
 		userRepository := repositories_mocks.NewMockedUserRepositoryFailure()
-		uuidGenerator := uuid_mocks.NewMockedUuidService()
-		userService := services.NewUserService(userRepository, uuidGenerator)
+		uuidService := uuid_mocks.NewMockedUuidServiceSuccess()
+		userService := services.NewUserService(userRepository, uuidService)
 
 		authService := services.AuthService{
 			JwtService:  jwt_mocks.NewMockedJwtServiceSuccess(),
@@ -40,7 +40,7 @@ func TestAuthServiceLogin(t *testing.T) {
 
 	t.Run("should return an empty LoginResponseDTO struct and an user not found error if UserService FindByEmail don't find an user", func(t *testing.T) {
 		userRepository := repositories_mocks.NewMockedUserRepositorySuccessFindByEmailNotFound()
-		uuidGenerator := uuid_mocks.NewMockedUuidService()
+		uuidGenerator := uuid_mocks.NewMockedUuidServiceSuccess()
 		userService := services.NewUserService(userRepository, uuidGenerator)
 
 		authService := services.AuthService{
@@ -68,7 +68,7 @@ func TestAuthServiceLogin(t *testing.T) {
 
 	t.Run("should return a WrongPasswordError if it is provided a valid Email with wrong Password", func(t *testing.T) {
 		userRepository := repositories_mocks.NewMockedUserRepositorySuccess()
-		uuidGenerator := uuid_mocks.NewMockedUuidService()
+		uuidGenerator := uuid_mocks.NewMockedUuidServiceSuccess()
 		userService := services.NewUserService(userRepository, uuidGenerator)
 
 		authService := services.AuthService{
@@ -98,7 +98,7 @@ func TestAuthServiceLogin(t *testing.T) {
 
 	t.Run("should return a InternalServerError if JwtService fails", func(t *testing.T) {
 		userRepository := repositories_mocks.NewMockedUserRepositorySuccess()
-		uuidGenerator := uuid_mocks.NewMockedUuidService()
+		uuidGenerator := uuid_mocks.NewMockedUuidServiceSuccess()
 		userService := services.NewUserService(userRepository, uuidGenerator)
 
 		authService := services.AuthService{
@@ -127,7 +127,7 @@ func TestAuthServiceLogin(t *testing.T) {
 
 	t.Run("should return a LoginResponseDTO and no error on success", func(t *testing.T) {
 		userRepository := repositories_mocks.NewMockedUserRepositorySuccess()
-		uuidGenerator := uuid_mocks.NewMockedUuidService()
+		uuidGenerator := uuid_mocks.NewMockedUuidServiceSuccess()
 		userService := services.NewUserService(userRepository, uuidGenerator)
 
 		authService := services.AuthService{

@@ -1,11 +1,27 @@
 package uuid
 
-import "github.com/google/uuid"
+import (
+	services_errors "github.com/WilliamKSilva/book-reservation/internal/services/errors"
+	googleUuid "github.com/google/uuid"
+)
 
-type GoogleUUIDGenerator struct{}
+type GoogleUuidService struct{}
 
-func (uuidGenerator *GoogleUUIDGenerator) Generate() string {
-	uuid := uuid.NewString()
+func generate(uuid string, err error) (string, error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			err = &services_errors.InternalServerError{}
+			uuid = ""
+		}
+	}()
 
-	return uuid
+	uuid = googleUuid.NewString()
+
+	return uuid, nil
+}
+
+func (googleUuidService *GoogleUuidService) Generate() (string, error) {
+	uuid, err := generate("", nil)
+	return uuid, err
 }

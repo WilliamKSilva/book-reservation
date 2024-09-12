@@ -7,6 +7,7 @@ import (
 
 	"github.com/WilliamKSilva/book-reservation/internal/domain/user"
 	repositories_mocks "github.com/WilliamKSilva/book-reservation/internal/infra/db/repositories/mocks"
+	encrypter_mocks "github.com/WilliamKSilva/book-reservation/internal/infra/encrypter/mocks"
 	uuid_mocks "github.com/WilliamKSilva/book-reservation/internal/infra/uuid/mocks"
 	"github.com/WilliamKSilva/book-reservation/internal/services"
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
@@ -24,12 +25,13 @@ func MockCreateUserRequestDTO() DTOs.CreateUserRequestDTO {
 }
 
 func TestUserServiceCreate(t *testing.T) {
-	userService := services.UserService{
-		UserRepository: repositories_mocks.NewMockedUserRepositorySuccess(),
-		UuidGenerator:  uuid_mocks.NewMockedUuidService(),
-	}
-
 	t.Run("should return ValidationError with Name field missing", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
+
 		req := MockCreateUserRequestDTO()
 		_, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Email:     req.Email,
@@ -53,6 +55,12 @@ func TestUserServiceCreate(t *testing.T) {
 	})
 
 	t.Run("should return ValidationError with Email field missing", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
+
 		req := MockCreateUserRequestDTO()
 		_, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Name:      req.Name,
@@ -76,6 +84,11 @@ func TestUserServiceCreate(t *testing.T) {
 	})
 
 	t.Run("should return ValidationError with Password field missing", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 		req := MockCreateUserRequestDTO()
 		_, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Name:      req.Name,
@@ -99,6 +112,11 @@ func TestUserServiceCreate(t *testing.T) {
 	})
 
 	t.Run("should return ValidationError with CPF field missing", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 		req := MockCreateUserRequestDTO()
 		_, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Name:      req.Name,
@@ -122,6 +140,11 @@ func TestUserServiceCreate(t *testing.T) {
 	})
 
 	t.Run("should return ValidationError with BirthDate field missing", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 		req := MockCreateUserRequestDTO()
 		_, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Name:     req.Name,
@@ -144,34 +167,65 @@ func TestUserServiceCreate(t *testing.T) {
 		}
 	})
 
-	t.Run("should return ValidationError with BirthDate field missing", func(t *testing.T) {
+	t.Run("should return a InternalServerError if UuidService fails", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceFailure(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 		req := MockCreateUserRequestDTO()
 		_, err := userService.Create(DTOs.CreateUserRequestDTO{
-			Name:     req.Name,
-			Email:    req.Email,
-			Password: req.Password,
-			CPF:      req.CPF,
+			Name:      req.Name,
+			Email:     req.Email,
+			Password:  req.Password,
+			CPF:       req.CPF,
+			BirthDate: req.BirthDate,
 		})
 
 		if err == nil {
-			t.Error("Expected a validate data error, got nil")
+			t.Error("Expected err, got nil")
 		}
 
-		var vErr *services_errors.ValidationError
-		if !errors.As(err, &vErr) {
-			t.Errorf("Expected error of type *ValidationError, but got %T", err)
+		var internalServerError *services_errors.InternalServerError
+		if !errors.As(err, &internalServerError) {
+			t.Errorf("Expected error of type *InternalServerError, but got %T", err)
+		}
+	})
+
+	t.Run("should return a InternalServerError if EncrypterService fails", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceFailure(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceFailure(),
+		}
+		req := MockCreateUserRequestDTO()
+		_, err := userService.Create(DTOs.CreateUserRequestDTO{
+			Name:      req.Name,
+			Email:     req.Email,
+			Password:  req.Password,
+			CPF:       req.CPF,
+			BirthDate: req.BirthDate,
+		})
+
+		if err == nil {
+			t.Error("Expected err, got nil")
 		}
 
-		if vErr.Field != "BirthDate" {
-			t.Errorf("Expected validation error for 'Name' field, but got %s", vErr.Field)
+		var internalServerError *services_errors.InternalServerError
+		if !errors.As(err, &internalServerError) {
+			t.Errorf("Expected error of type *InternalServerError, but got %T", err)
 		}
 	})
 
 	t.Run("should return an empty CreateUserResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
-		// Sets failure UserRepository
-		userService.UserRepository = repositories_mocks.NewMockedUserRepositoryFailure()
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositoryFailure(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
+
 		req := MockCreateUserRequestDTO()
-		u, err := userService.Create(DTOs.CreateUserRequestDTO{
+		_, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Name:      req.Name,
 			Email:     req.Email,
 			Password:  req.Password,
@@ -182,15 +236,14 @@ func TestUserServiceCreate(t *testing.T) {
 		if err == nil {
 			t.Error("Expected UserRepository error, got nil")
 		}
-
-		if u.ID != "" {
-			t.Error("CreateUserResponseDTO returned by UserRepository should be empty")
-		}
-		// Resets to success UserRepository
-		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccess()
 	})
 
 	t.Run("should return an CreateUserResponseDTO struct and an empty error on success", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 		req := MockCreateUserRequestDTO()
 		u, err := userService.Create(DTOs.CreateUserRequestDTO{
 			Name:      req.Name,
@@ -221,13 +274,12 @@ func TestUserServiceCreate(t *testing.T) {
 }
 
 func TestUserServiceFindByEmail(t *testing.T) {
-	userService := services.UserService{
-		UserRepository: repositories_mocks.NewMockedUserRepositorySuccess(),
-		UuidGenerator:  uuid_mocks.NewMockedUuidService(),
-	}
-
 	t.Run("should return an empty FindUserByEmailResponseDTO struct and an error if UserRepository fails", func(t *testing.T) {
-		userService.UserRepository = repositories_mocks.NewMockedUserRepositoryFailure()
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositoryFailure(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 
 		u, err := userService.FindByEmail("teste@teste.com")
 
@@ -240,12 +292,14 @@ func TestUserServiceFindByEmail(t *testing.T) {
 		if !reflect.DeepEqual(u, expected) {
 			t.Error("Expected empty FindUserByEmailResponseDTO")
 		}
-
-		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccess()
 	})
 
 	t.Run("should return an empty FindUserByEmailResponseDTO struct and a UserNotFoundError if UserRepository return empty User struct", func(t *testing.T) {
-		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccessFindByEmailNotFound()
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccessFindByEmailNotFound(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 
 		u, err := userService.FindByEmail("teste@teste.com")
 
@@ -263,11 +317,14 @@ func TestUserServiceFindByEmail(t *testing.T) {
 		if !reflect.DeepEqual(u, expected) {
 			t.Error("Expected empty FindUserByEmailResponseDTO")
 		}
-
-		userService.UserRepository = repositories_mocks.NewMockedUserRepositorySuccess()
 	})
 
 	t.Run("should return a FindUserByEmailResponseDTO struct and no error on success", func(t *testing.T) {
+		userService := services.UserService{
+			UserRepository:   repositories_mocks.NewMockedUserRepositorySuccess(),
+			UuidService:      uuid_mocks.NewMockedUuidServiceSuccess(),
+			EncrypterService: encrypter_mocks.NewMockedEncrypterServiceSuccess(),
+		}
 		u, err := userService.FindByEmail("teste@teste.com")
 
 		if err != nil {

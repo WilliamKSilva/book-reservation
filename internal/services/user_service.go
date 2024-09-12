@@ -8,21 +8,22 @@ import (
 	services_errors "github.com/WilliamKSilva/book-reservation/internal/services/errors"
 )
 
-type IUserService interface {
+type UserServiceInterface interface {
 	Create(DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error)
 	FindByEmail(email string) (DTOs.FindUserByEmailResponseDTO, error)
 }
 
-func NewUserService(userRepository UserRepositoryAdapter, uuidGenerator UuidServiceAdapter) *UserService {
+func NewUserService(userRepository UserRepositoryInterface, uuidGenerator UuidServiceInterface) *UserService {
 	return &UserService{
 		UserRepository: userRepository,
-		UuidGenerator:  uuidGenerator,
+		UuidService:    uuidGenerator,
 	}
 }
 
 type UserService struct {
-	UserRepository UserRepositoryAdapter
-	UuidGenerator  UuidServiceAdapter
+	UserRepository   UserRepositoryInterface
+	UuidService      UuidServiceInterface
+	EncrypterService EncrypterServiceInterface
 }
 
 func (userService *UserService) Create(createUserRequestDTO DTOs.CreateUserRequestDTO) (DTOs.CreateUserResponseDTO, error) {
@@ -36,14 +37,22 @@ func (userService *UserService) Create(createUserRequestDTO DTOs.CreateUserReque
 		return DTOs.CreateUserResponseDTO{}, err
 	}
 
-	uuid := userService.UuidGenerator.Generate()
+	uuid, err := userService.UuidService.Generate()
+	if err != nil {
+		return DTOs.CreateUserResponseDTO{}, err
+	}
+
+	hashed, err := userService.EncrypterService.Hash(createUserRequestDTO.Password)
+	if err != nil {
+		return DTOs.CreateUserResponseDTO{}, err
+	}
 
 	user := user.User{
 		ID:        uuid,
 		Name:      createUserRequestDTO.Name,
 		Email:     createUserRequestDTO.Email,
 		CPF:       createUserRequestDTO.CPF,
-		Password:  createUserRequestDTO.Password,
+		Password:  hashed,
 		BirthDate: birthDateTime,
 	}
 

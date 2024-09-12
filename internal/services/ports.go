@@ -5,15 +5,19 @@ import (
 	"github.com/WilliamKSilva/book-reservation/internal/services/DTOs"
 )
 
-type JwtServiceAdapter interface {
+type JwtServiceInterface interface {
 	New() (DTOs.JwtToken, error)
 }
 
-type UserRepositoryAdapter interface {
+type UserRepositoryInterface interface {
 	Save(user user.User) (user.User, error)
 	FindByEmail(email string) (user.User, error)
 }
 
-type UuidServiceAdapter interface {
-	Generate() string
+type UuidServiceInterface interface {
+	Generate() (string, error)
+}
+
+type EncrypterServiceInterface interface {
+	Hash(password string) (string, error)
 }

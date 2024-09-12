@@ -18,10 +18,10 @@ import (
 
 func NewAuthHandler(ctx context.Context, dbPool *pgxpool.Pool) *AuthHandler {
 	userRepository := repositories.PostgresUserRepository{Conn: dbPool, Ctx: ctx}
-	uuidGenerator := uuid.GoogleUUIDGenerator{}
+	uuidService := uuid.GoogleUuidService{}
 	authService := services.AuthService{
 		JwtService:  &jwt.GolangJwt{},
-		UserService: services.NewUserService(&userRepository, &uuidGenerator),
+		UserService: services.NewUserService(&userRepository, &uuidService),
 	}
 	return &AuthHandler{AuthService: &authService}
 }

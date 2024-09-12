@@ -11,8 +11,8 @@ type IAuthService interface {
 }
 
 type AuthService struct {
-	JwtService  JwtServiceAdapter
-	UserService IUserService
+	JwtService  JwtServiceInterface
+	UserService UserServiceInterface
 }
 
 func (authService *AuthService) Login(email string, password string) (DTOs.LoginResponseDTO, error) {

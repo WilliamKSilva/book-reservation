@@ -17,10 +17,10 @@ import (
 
 func NewUserHandler(ctx context.Context, dbConn *pgxpool.Pool) *UserHandler {
 	userPostgresRepository := repositories.PostgresUserRepository{Conn: dbConn, Ctx: ctx}
-	googleUuidGenerator := uuid.GoogleUUIDGenerator{}
+	uuidService := uuid.GoogleUuidService{}
 	userService := services.UserService{
 		UserRepository: &userPostgresRepository,
-		UuidGenerator:  &googleUuidGenerator,
+		UuidService:    &uuidService,
 	}
 
 	return &UserHandler{
@@ -33,7 +33,7 @@ type IUserHandler interface {
 }
 
 type UserHandler struct {
-	UserService services.IUserService
+	UserService services.UserServiceInterface
 }
 
 // CreateUser godoc
